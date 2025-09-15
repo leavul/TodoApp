@@ -3,18 +3,21 @@ import { useState } from "react";
 import {
   Text,
   View,
-  StyleSheet,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
   TextInput,
   TouchableOpacity,
   Keyboard,
+  StyleSheet,
 } from "react-native";
 import Task from "./components/Task";
 
+// TODO: Add animations to: sectionTitle and noTaskText
 export default function App() {
   useFonts({
     "Ubuntu Regular": require("./assets/fonts/Ubuntu-Regular.ttf"),
+    "Ubuntu Medium": require("./assets/fonts/Ubuntu-Medium.ttf"),
     "Ubuntu Bold": require("./assets/fonts/Ubuntu-Bold.ttf"),
   });
 
@@ -27,7 +30,12 @@ export default function App() {
   const handleAddTask = () => {
     // Add the task if it's not empty
     if (task.trim() !== "") {
-      setTaskItems([...taskItems, task]);
+      const newTask = {
+        id: Date.now().toString(),
+        text: task,
+        completed: false,
+      };
+      setTaskItems([...taskItems, newTask]);
 
       // Close the keyboard
       Keyboard.dismiss();
@@ -36,41 +44,64 @@ export default function App() {
     }
   };
 
+  // Handle toggle completion
+  const handleToggleCompletion = (id) => {
+    setTaskItems((prev) =>
+      prev.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
   // Handle delete task
-  const handleDeleteTask = (index) => {
-    // Create a copy of the task items
-    let itemsCopy = [...taskItems];
-    // Remove the task at the given index
-    itemsCopy.splice(index, 1);
-    // Update the task items
-    setTaskItems(itemsCopy);
+  const handleDeleteTask = (id) => {
+    setTaskItems((prev) => prev.filter((task) => task.id !== id));
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.taskWrapper}>
-        {/* Today's tasks text */}
-        <Text style={styles.sectionTitle}>📋 Today's tasks</Text>
-        {/* Here the tasks View */}
-        <View style={styles.items}>
-          {taskItems.map((item, index) => {
-            return (
-              <Task
-                key={index}
-                handleToggleCompletion={() => {}}
-                handleDeletion={() => handleDeleteTask(index)}
-                text={item}
-              />
-            );
-          })}
+      {taskItems.length > 0 ? (
+        // There are tasks section
+        <View style={styles.tasksWrapper}>
+          {/* Section Title */}
+          <Text style={styles.tasksSectionTitle}>📋 Today's tasks</Text>
+          {/* Items wrapper - this wrapper is used to add padding to the view without including it in the scroll view */}
+          <View style={styles.itemsWrapper}>
+            <ScrollView>
+              {/* Items - use to add gap between items */}
+              <View style={styles.items}>
+                {taskItems.map((item) => {
+                  const id = item.id;
+                  return (
+                    <Task
+                      key={id}
+                      handleToggleCompletion={() => handleToggleCompletion(id)}
+                      handleDeletion={() => handleDeleteTask(id)}
+                      completed={item.completed}
+                      text={item.text}
+                    />
+                  );
+                })}
+              </View>
+            </ScrollView>
+          </View>
         </View>
-      </View>
-      {/* Write the task */}
+      ) : (
+        // No tasks section
+        <View style={styles.noTasksWrapper}>
+          <Text style={styles.noTasksText}>
+            🎉 All caught up! No tasks left.
+          </Text>
+        </View>
+      )}
+
+      {/* Add task input and button */}
       <KeyboardAvoidingView
         style={styles.writeTaskWrapper}
         behavior={Platform.OS ? "padding" : "height"}
         keyboardVerticalOffset={"15"}
       >
+        {/* Add task input */}
         <TextInput
           style={styles.input}
           placeholder="Write a task"
@@ -79,6 +110,7 @@ export default function App() {
           onChangeText={(text) => setTask(text)}
         />
 
+        {/* Add task button */}
         <TouchableOpacity onPress={handleAddTask} activeOpacity={0.5}>
           <View style={styles.addWrapper}>
             <Text style={styles.addText}>+</Text>
@@ -94,22 +126,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#E8EAED",
   },
-  taskWrapper: {
+  tasksWrapper: {
+    flex: 1,
     paddingTop: 80,
     paddingHorizontal: 20,
   },
-  sectionTitle: {
+  tasksSectionTitle: {
     fontFamily: "Ubuntu Bold",
     fontSize: 24,
     fontWeight: "bold",
   },
+  itemsWrapper: {
+    flex: 1,
+    paddingTop: 30,
+    paddingBottom: 120,
+  },
   items: {
-    paddingTop: 40,
+    gap: 16,
+  },
+  noTasksWrapper: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  noTasksText: {
+    fontFamily: "Ubuntu Medium",
+    fontSize: 16,
+    color: "#6C6C6CFF",
+    textAlign: "center",
   },
   writeTaskWrapper: {
     position: "absolute",
-    bottom: 60,
+    bottom: 50,
     width: "100%",
+    paddingTop: 10,
+    backgroundColor: "#E8EAED",
     flexDirection: "row",
     justifyContent: "space-evenly",
     alignItems: "center",
@@ -135,6 +186,6 @@ const styles = StyleSheet.create({
   },
   addText: {
     fontSize: 24,
-    color: "#6c6c6cff",
+    color: "#6C6C6CFF",
   },
 });
