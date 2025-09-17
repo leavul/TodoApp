@@ -3,9 +3,9 @@ import { useRef } from "react";
 import { View as AnimatableView } from "react-native-animatable";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
+// TODO: Change the task text
 const Task = (props) => {
   // Animation durations
-  const containerAnimationDuration = 400;
   const completionSymbolAnimationDuration = 1100;
   const completionTextAnimationDuration = 500;
   const subtleWobbleWithFade = {
@@ -16,12 +16,13 @@ const Task = (props) => {
     0.8: { translateX: -0.5, opacity: 0.8 },
     1.0: { translateX: 0, opacity: 1 },
   };
-  const deleteAnimationDuration = 300;
 
-  const taskContainerRef = useRef(null);
+  // Store the completion symbol ref
   const completionSymbolRef = useRef(null);
+  // Store the completion text ref
   const completionTextRef = useRef(null);
 
+  // Handle toggle completion
   const onToggleCompletion = () => {
     // Toggle completion
     props.handleToggleCompletion();
@@ -43,58 +44,42 @@ const Task = (props) => {
     }
   };
 
-  const onDelete = () => {
-    // Animate task deletion
-    if (taskContainerRef.current) {
-      taskContainerRef.current
-        .animate("fadeOutRight", deleteAnimationDuration)
-        // Handle deletion after animation
-        .then(() => props.handleDeletion());
-    } else {
-      // Handle deletion directly
-      props.handleDeletion();
-    }
-  };
-
   return (
-    <AnimatableView
-      ref={taskContainerRef}
-      animation="fadeInUp"
-      easing="ease-out"
-      duration={containerAnimationDuration}
-    >
-      <TouchableOpacity onPress={onToggleCompletion} activeOpacity={0.5}>
-        <View style={styles.item}>
-          {/* Completion symbol */}
-          <AnimatableView ref={completionSymbolRef}>
-            {props.completed ? (
-              <FontAwesome name="check" size={20} color="#55BCF6" />
-            ) : (
-              <View style={styles.circular}></View>
-            )}
-          </AnimatableView>
+    <TouchableOpacity onPress={onToggleCompletion} activeOpacity={0.5}>
+      <View style={styles.item}>
+        {/* Completion symbol */}
+        <AnimatableView ref={completionSymbolRef}>
+          {props.completed ? (
+            <FontAwesome name="check" size={20} color="#55BCF6" />
+          ) : (
+            <View style={styles.circular}></View>
+          )}
+        </AnimatableView>
 
-          {/* Task text */}
-          <AnimatableView style={styles.itemText} ref={completionTextRef}>
-            <Text
-              style={[
-                props.completed && {
-                  textDecorationLine: "line-through",
-                  color: "#C0C0C0",
-                },
-              ]}
-            >
-              {props.text}
-            </Text>
-          </AnimatableView>
+        {/* Task text */}
+        <AnimatableView style={styles.textWrapper} ref={completionTextRef}>
+          <Text
+            style={[
+              styles.text,
+              props.completed && {
+                textDecorationLine: "line-through",
+                color: "#C0C0C0",
+              },
+            ]}
+          >
+            {props.text}
+          </Text>
+        </AnimatableView>
 
-          {/* Delete button */}
-          <TouchableOpacity style={styles.deleteWrapper} onPress={onDelete}>
-            <FontAwesome name="close" size={20} color="#FE7878FF" />
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    </AnimatableView>
+        {/* Delete button */}
+        <TouchableOpacity
+          style={styles.deleteWrapper}
+          onPress={props.handleDeletion}
+        >
+          <FontAwesome name="close" size={20} color="#FE7878FF" />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -114,10 +99,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderRadius: 7,
   },
-  itemText: {
+  textWrapper: {
     flex: 1,
-    fontFamily: "Ubuntu Regular",
     paddingHorizontal: 16,
+  },
+  text: {
+    fontFamily: "Ubuntu Regular",
   },
   deleteWrapper: {
     padding: 6,
