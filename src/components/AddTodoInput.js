@@ -9,21 +9,22 @@ import {
   Keyboard,
   StyleSheet,
 } from "react-native";
+import { Colors, FontFamilies, FontSizes, BorderRadius } from "../constants";
 
-const AddTaskInput = (props) => {
-  // Store the add task input value
-  const [task, setTask] = useState("");
+const AddTodoInput = (props) => {
+  // Store the add todo input value
+  const [todo, setTodo] = useState("");
 
-  // Handle add task
-  const onAddTask = () => {
-    // If the task is not empty
-    if (task.trim() !== "") {
-      // Add the task
-      props.handleAddTask(task);
+  // Handle add todo
+  const onAddTodo = () => {
+    // If the todo is not empty
+    if (todo.trim() !== "") {
+      // Add the todo
+      props.handleAddTodo(todo);
       // Close the keyboard
       Keyboard.dismiss();
-      // Clear the add task input
-      setTask("");
+      // Clear the add todo input
+      setTodo("");
     }
   };
   return (
@@ -32,17 +33,17 @@ const AddTaskInput = (props) => {
       behavior={Platform.OS ? "padding" : "height"}
       keyboardVerticalOffset={"15"}
     >
-      {/* Task input */}
+      {/* Todo input */}
       <TextInput
         style={styles.input}
-        placeholder="Write a task"
+        placeholder="Write a todo"
         returnKeyType="done"
-        value={task}
-        onChangeText={(text) => setTask(text)}
+        value={todo}
+        onChangeText={(text) => setTodo(text)}
       />
 
-      {/* Add task button */}
-      <TouchableOpacity onPress={onAddTask} activeOpacity={0.5}>
+      {/* Add todo button */}
+      <TouchableOpacity onPress={onAddTodo} activeOpacity={0.5}>
         <View style={styles.addWrapper}>
           <Text style={styles.addText}>+</Text>
         </View>
@@ -62,25 +63,26 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 12,
     width: "70%",
-    backgroundColor: "#FEFEFEFF",
-    borderRadius: 12,
-    borderColor: "#C0C0C0",
+    fontFamily: FontFamilies.regular,
+    backgroundColor: Colors.secondary,
+    borderRadius: BorderRadius.large,
+    borderColor: Colors.borderColor,
     borderWidth: 1,
   },
   addWrapper: {
     height: 50,
     width: 70,
-    backgroundColor: "#FEFEFEFF",
-    borderRadius: 60,
+    backgroundColor: Colors.secondary,
+    borderRadius: BorderRadius.large,
     alignItems: "center",
     justifyContent: "center",
-    borderColor: "#C0C0C0",
+    borderColor: Colors.borderColor,
     borderWidth: 1,
   },
   addText: {
-    fontSize: 24,
-    color: "#6C6C6CFF",
+    fontSize: FontSizes.extraLarge,
+    color: Colors.tertiary,
   },
 });
 
-export default AddTaskInput;
+export default AddTodoInput;

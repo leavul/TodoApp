@@ -2,12 +2,17 @@ import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import { useRef } from "react";
 import { View as AnimatableView } from "react-native-animatable";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import {
+  Durations,
+  Colors,
+  FontFamilies,
+  FontSizes,
+  BorderRadius,
+} from "../constants";
 
-// TODO: Change the task text
-const Task = (props) => {
-  // Animation durations
-  const completionSymbolAnimationDuration = 1100;
-  const completionTextAnimationDuration = 500;
+const SymbolSize = 20;
+// TODO: Change the todo text
+const Todo = (props) => {
   const subtleWobbleWithFade = {
     0.0: { translateX: 0, opacity: 0.0 },
     0.2: { translateX: 1, opacity: 0.2 },
@@ -29,41 +34,39 @@ const Task = (props) => {
 
     // Animate completion symbol
     if (completionSymbolRef.current) {
-      completionSymbolRef.current.animate(
-        "bounceIn",
-        completionSymbolAnimationDuration
-      );
+      completionSymbolRef.current.animate("bounceIn", Durations.extraLong);
     }
 
     // Animate completion text
     if (completionTextRef.current) {
-      completionTextRef.current.animate(
-        subtleWobbleWithFade,
-        completionTextAnimationDuration
-      );
+      completionTextRef.current.animate(subtleWobbleWithFade, Durations.long);
     }
   };
 
   return (
     <TouchableOpacity onPress={onToggleCompletion} activeOpacity={0.5}>
-      <View style={styles.item}>
+      <View style={styles.container}>
         {/* Completion symbol */}
         <AnimatableView ref={completionSymbolRef}>
           {props.completed ? (
-            <FontAwesome name="check" size={20} color="#55BCF6" />
+            <FontAwesome
+              name="check"
+              size={SymbolSize}
+              color={Colors.completionSymbol}
+            />
           ) : (
             <View style={styles.circular}></View>
           )}
         </AnimatableView>
 
-        {/* Task text */}
+        {/* Todo text */}
         <AnimatableView style={styles.textWrapper} ref={completionTextRef}>
           <Text
             style={[
               styles.text,
               props.completed && {
                 textDecorationLine: "line-through",
-                color: "#C0C0C0",
+                color: Colors.completedTodo,
               },
             ]}
           >
@@ -76,7 +79,7 @@ const Task = (props) => {
           style={styles.deleteWrapper}
           onPress={props.handleDeletion}
         >
-          <FontAwesome name="close" size={20} color="#FE7878FF" />
+          <FontAwesome name="close" size={SymbolSize} color={Colors.delete} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -84,31 +87,33 @@ const Task = (props) => {
 };
 
 const styles = StyleSheet.create({
-  item: {
+  container: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 18,
     paddingHorizontal: 24,
-    backgroundColor: "#FEFEFEFF",
-    borderRadius: 12,
+    backgroundColor: Colors.secondary,
+    borderRadius: BorderRadius.large,
   },
   circular: {
-    height: 20,
-    width: 20,
-    borderColor: "#55BCF6",
+    height: SymbolSize,
+    width: SymbolSize,
+    borderColor: Colors.completionSymbol,
     borderWidth: 2,
-    borderRadius: 7,
+    borderRadius: BorderRadius.medium,
   },
   textWrapper: {
     flex: 1,
     paddingHorizontal: 16,
   },
   text: {
-    fontFamily: "Ubuntu Regular",
+    fontFamily: FontFamilies.regular,
+    fontSize: FontSizes.medium,
+    color: Colors.primary,
   },
   deleteWrapper: {
     padding: 6,
   },
 });
 
-export default Task;
+export default Todo;

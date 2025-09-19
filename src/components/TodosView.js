@@ -4,38 +4,36 @@ import {
   View as AnimatableView,
   Text as AnimatableText,
 } from "react-native-animatable";
-import Task from "./Task";
+import Todo from "./Todo";
+import { Durations, Colors, FontFamilies, FontSizes } from "../constants";
 
-const TasksView = (props) => {
-  // Animation duration
-  const deleteAnimationDuration = 300;
-
+const TodosView = (props) => {
   // Store the section title ref
   const sectionTitleRef = useRef(null);
 
-  // Create a ref map for all task refs
-  const taskRefs = useRef({});
+  // Create a ref map for all todo refs
+  const todoRefs = useRef({});
 
-  // Handle delete task
-  const onDeleteTask = (id) => {
-    // Get the task ref
-    const taskRef = taskRefs.current[id];
-    // Check if it's the last task
-    const isLastTask = props.taskItems.length === 1;
+  // Handle delete todo
+  const onDeleteTodo = (id) => {
+    // Get the todo ref
+    const todoRef = todoRefs.current[id];
+    // Check if it's the last todo
+    const isLastTodo = props.todos.length === 1;
 
     // Create array of animations to run
     const animations = [];
 
-    if (taskRef)
-      animations.push(taskRef.animate("fadeOutRight", deleteAnimationDuration));
-    if (isLastTask && sectionTitleRef.current)
+    if (todoRef)
+      animations.push(todoRef.animate("fadeOutRight", Durations.short));
+    if (isLastTodo && sectionTitleRef.current)
       animations.push(
-        sectionTitleRef.current.animate("fadeOutLeft", deleteAnimationDuration)
+        sectionTitleRef.current.animate("fadeOutLeft", Durations.short)
       );
 
-    // Run all animations in parallel, then delete task
+    // Run all animations in parallel, then delete todo
     Promise.all(animations).then(() => {
-      props.handleDeleteTask(id);
+      props.handleDeleteTodo(id);
     });
   };
 
@@ -44,29 +42,29 @@ const TasksView = (props) => {
       <AnimatableText
         ref={sectionTitleRef}
         animation="fadeInDown"
-        duration={props.initialAnimationDuration}
+        duration={Durations.long}
         easing="ease-out"
         style={styles.sectionTitle}
       >
-        📋 Today's tasks
+        📋 What To Do
       </AnimatableText>
       <ScrollView>
         <View style={styles.itemWrapper}>
-          {props.taskItems.map((item) => {
+          {props.todos.map((item) => {
             const id = item.id;
             return (
               <AnimatableView
                 key={id}
-                ref={(ref) => (taskRefs.current[item.id] = ref)} // Store the ref in the map
+                ref={(ref) => (todoRefs.current[item.id] = ref)} // Store the ref in the map
                 animation="fadeInUp"
                 easing="ease-out"
-                duration={props.initialAnimationDuration}
+                duration={Durations.long}
               >
-                <Task
+                <Todo
                   handleToggleCompletion={() =>
                     props.handleToggleCompletion(id)
                   }
-                  handleDeletion={() => onDeleteTask(id)}
+                  handleDeletion={() => onDeleteTodo(id)}
                   completed={item.completed}
                   text={item.text}
                 />
@@ -84,9 +82,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sectionTitle: {
-    fontFamily: "Ubuntu Bold",
-    fontSize: 24,
-    fontWeight: "bold",
+    color: Colors.primary,
+    fontFamily: FontFamilies.bold,
+    fontSize: FontSizes.extraLarge,
     paddingHorizontal: 20,
   },
   itemWrapper: {
@@ -96,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TasksView;
+export default TodosView;
